@@ -11,9 +11,7 @@ class CategoryService {
   Future<List<Category>> getCategories() async {
     final response =
         await _apiClient.get(AppConstants.categoriesEndpoint);
-    final List<dynamic> data =
-        response['data'] ?? response as List<dynamic>;
-    return data
+    return ApiClient.extractList(response)
         .map((c) => Category.fromJson(c as Map<String, dynamic>))
         .toList();
   }

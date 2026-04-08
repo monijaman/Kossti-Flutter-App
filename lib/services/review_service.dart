@@ -16,9 +16,7 @@ class ReviewService {
         'per_page': AppConstants.pageSize.toString(),
       },
     );
-    final List<dynamic> data =
-        response['data'] ?? response as List<dynamic>;
-    return data
+    return ApiClient.extractList(response)
         .map((r) => Review.fromJson(r as Map<String, dynamic>))
         .toList();
   }
@@ -34,9 +32,7 @@ class ReviewService {
       AppConstants.reviewsEndpoint,
       queryParams: params,
     );
-    final List<dynamic> data =
-        response['data'] ?? response as List<dynamic>;
-    return data
+    return ApiClient.extractList(response)
         .map((r) => Review.fromJson(r as Map<String, dynamic>))
         .toList();
   }
@@ -51,9 +47,7 @@ class ReviewService {
         'sort_by': 'newest',
       },
     );
-    final List<dynamic> data =
-        response['data'] ?? response as List<dynamic>;
-    return data
+    return ApiClient.extractList(response)
         .map((r) => Review.fromJson(r as Map<String, dynamic>))
         .toList();
   }

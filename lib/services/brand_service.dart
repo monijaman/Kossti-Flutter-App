@@ -9,9 +9,7 @@ class BrandService {
 
   Future<List<Brand>> getBrands() async {
     final response = await _apiClient.get(AppConstants.brandsEndpoint);
-    final List<dynamic> data =
-        response['data'] ?? response as List<dynamic>;
-    return data
+    return ApiClient.extractList(response)
         .map((b) => Brand.fromJson(b as Map<String, dynamic>))
         .toList();
   }

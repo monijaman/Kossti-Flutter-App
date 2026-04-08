@@ -29,9 +29,7 @@ class ProductService {
       AppConstants.productsEndpoint,
       queryParams: params,
     );
-    final List<dynamic> data =
-        response['data'] ?? response as List<dynamic>;
-    return data
+    return ApiClient.extractList(response)
         .map((p) => Product.fromJson(p as Map<String, dynamic>))
         .toList();
   }
@@ -40,9 +38,7 @@ class ProductService {
     final response = await _apiClient.get(
       '${AppConstants.productsEndpoint}/featured',
     );
-    final List<dynamic> data =
-        response['data'] ?? response as List<dynamic>;
-    return data
+    return ApiClient.extractList(response)
         .map((p) => Product.fromJson(p as Map<String, dynamic>))
         .toList();
   }
