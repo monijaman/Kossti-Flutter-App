@@ -7,8 +7,17 @@ class BrandService {
 
   BrandService({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
 
-  Future<List<Brand>> getBrands() async {
-    final response = await _apiClient.get(AppConstants.brandsEndpoint);
+  Future<List<Brand>> getBrands({int? categoryId}) async {
+    final params = <String, String>{};
+    if (categoryId != null) params['category_id'] = categoryId.toString();
+    final response = await _apiClient.get(
+      AppConstants.brandsEndpoint,
+      queryParams: params.isNotEmpty ? params : null,
+    );
+    return ApiClient.extractList(response)
+        .map((b) => Brand.fromJson(b as Map<String, dynamic>))
+        .toList();
+  }
     return ApiClient.extractList(response)
         .map((b) => Brand.fromJson(b as Map<String, dynamic>))
         .toList();

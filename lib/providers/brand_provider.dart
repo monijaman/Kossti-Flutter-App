@@ -16,11 +16,11 @@ class BrandProvider extends ChangeNotifier {
   List<Brand> get brands => _brands;
   String? get errorMessage => _errorMessage;
 
-  Future<void> loadBrands() async {
+  Future<void> loadBrands({int? categoryId}) async {
     _loading = true;
     notifyListeners();
     try {
-      _brands = await _brandService.getBrands();
+      _brands = await _brandService.getBrands(categoryId: categoryId);
       _errorMessage = null;
     } catch (e) {
       _errorMessage = e.toString();

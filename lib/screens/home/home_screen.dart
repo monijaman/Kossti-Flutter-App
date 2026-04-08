@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/review_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
-import '../../widgets/common/product_card.dart';
+import '../../widgets/common/category_card.dart';
 import '../../widgets/common/review_card.dart';
 import '../../widgets/common/loading_widget.dart';
+import '../../widgets/common/app_error_widget.dart';
 import '../products/product_list_screen.dart';
-import '../products/product_detail_screen.dart';
 import '../categories/categories_screen.dart';
 import '../brands/brands_screen.dart';
+import '../brands/brands_for_category_screen.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
 import '../admin/admin_dashboard_screen.dart';
@@ -32,7 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductProvider>().loadPopularProducts(refresh: true);
       context.read<CategoryProvider>().loadCategories();
       context.read<ReviewProvider>().loadLatestReviews();
     });
@@ -121,21 +120,7 @@ class _HomeTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Categories horizontal scroll
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _SectionHeader(
-                title: AppStrings.allCategories,
-                onSeeAll: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const CategoriesScreen()),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const _CategoriesRow(),
-            const SizedBox(height: 20),
-
-            // 2. Search bar
+            // Search bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
@@ -163,23 +148,21 @@ class _HomeTab extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // 3. Popular Products with pagination
+            // Categories grid — tap to see brands in that category
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _SectionHeader(
-                title: AppStrings.popularProducts,
+                title: AppStrings.allCategories,
                 onSeeAll: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const ProductListScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const CategoriesScreen()),
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            const _PopularProductsGrid(),
+            const _CategoriesGrid(),
             const SizedBox(height: 24),
 
-            // 4. Latest Reviews
+            // Latest Reviews
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -225,9 +208,9 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-/// Horizontal scroll row of category chips
-class _CategoriesRow extends StatelessWidget {
-  const _CategoriesRow();
+/// Full categories grid. Tapping a category navigates to BrandsForCategoryScreen.
+class _CategoriesGrid extends StatelessWidget {
+  const _CategoriesGrid();
 
   @override
   Widget build(BuildContext context) {
@@ -237,120 +220,52 @@ class _CategoriesRow extends StatelessWidget {
       builder: (_, cats, __) {
         if (cats.loading) {
           return const SizedBox(
-            height: 40,
+            height: 120,
             child: Center(child: LoadingWidget()),
           );
         }
-        if (cats.categories.isEmpty) {
+        if (cats.errorMessage != null && cats.categories.isEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              AppStrings.noData,
-              style: const TextStyle(color: AppColors.textSecondary),
+            child: AppErrorWidget(
+              message: cats.errorMessage!,
+              onRetry: cats.loadCategories,
             ),
           );
         }
-        return SizedBox(
-          height: 40,
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            scrollDirection: Axis.horizontal,
+        if (cats.categories.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              AppStrings.noData,
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.85,
+            ),
             itemCount: cats.categories.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (_, i) {
               final cat = cats.categories[i];
-              return ActionChip(
-                label: Text(cat.localizedName(locale)),
-                avatar: const Icon(Icons.category_outlined, size: 16),
-                onPressed: () => Navigator.of(context).push(
+              return CategoryCard(
+                category: cat,
+                onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) =>
-                        ProductListScreen(categoryId: cat.id),
+                    builder: (_) => BrandsForCategoryScreen(category: cat),
                   ),
                 ),
               );
             },
           ),
-        );
-      },
-    );
-  }
-}
-
-/// Popular products grid with "Load More" pagination
-class _PopularProductsGrid extends StatelessWidget {
-  const _PopularProductsGrid();
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ProductProvider>(
-      builder: (_, products, __) {
-        if (products.popularLoading && products.popularProducts.isEmpty) {
-          return const LoadingWidget();
-        }
-        if (products.popularProducts.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: SizedBox(
-              height: 80,
-              child: Center(
-                child: Text(
-                  AppStrings.noData,
-                  style: TextStyle(color: AppColors.textSecondary),
-                ),
-              ),
-            ),
-          );
-        }
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 0.7,
-                ),
-                itemCount: products.popularProducts.length,
-                itemBuilder: (_, i) {
-                  final p = products.popularProducts[i];
-                  return ProductCard(
-                    product: p,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ProductDetailScreen(productId: p.id),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            if (products.popularHasMore) ...[
-              const SizedBox(height: 12),
-              products.popularLoading
-                  ? const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: CircularProgressIndicator(),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          onPressed: () =>
-                              context.read<ProductProvider>().loadPopularProducts(),
-                          child: const Text(AppStrings.loadMore),
-                        ),
-                      ),
-                    ),
-            ],
-          ],
         );
       },
     );

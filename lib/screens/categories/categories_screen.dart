@@ -6,7 +6,7 @@ import '../../core/constants/app_strings.dart';
 import '../../widgets/common/category_card.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../../widgets/common/app_error_widget.dart';
-import '../products/product_list_screen.dart';
+import '../brands/brands_for_category_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -53,8 +53,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               category: provider.categories[i],
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => ProductListScreen(
-                    categoryId: provider.categories[i].id,
+                  builder: (_) => BrandsForCategoryScreen(
+                    category: provider.categories[i],
                   ),
                 ),
               ),
