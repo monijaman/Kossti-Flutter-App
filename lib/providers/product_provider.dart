@@ -10,6 +10,7 @@ class ProductProvider extends ChangeNotifier {
   ProductState _state = ProductState.initial;
   List<Product> _products = [];
   List<Product> _featuredProducts = [];
+  bool _featuredLoading = false;
   Product? _selectedProduct;
   String? _errorMessage;
   int _currentPage = 1;
@@ -30,6 +31,7 @@ class ProductProvider extends ChangeNotifier {
   Product? get selectedProduct => _selectedProduct;
   String? get errorMessage => _errorMessage;
   bool get hasMore => _hasMore;
+  bool get featuredLoading => _featuredLoading;
   int? get selectedCategoryId => _selectedCategoryId;
   int? get selectedBrandId => _selectedBrandId;
   String get searchQuery => _searchQuery;
@@ -70,10 +72,15 @@ class ProductProvider extends ChangeNotifier {
   }
 
   Future<void> loadFeaturedProducts() async {
+    _featuredLoading = true;
+    notifyListeners();
     try {
       _featuredProducts = await _productService.getFeaturedProducts();
-      notifyListeners();
-    } catch (_) {}
+    } catch (_) {
+      _featuredProducts = [];
+    }
+    _featuredLoading = false;
+    notifyListeners();
   }
 
   Future<void> loadProduct(int id) async {

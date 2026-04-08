@@ -27,7 +27,13 @@ class AuthProvider extends ChangeNotifier {
       final isLoggedIn = await _authService.isLoggedIn();
       if (isLoggedIn) {
         _currentUser = await _authService.getCurrentUser();
-        _status = AuthStatus.authenticated;
+        if (_currentUser != null) {
+          _status = AuthStatus.authenticated;
+        } else {
+          // Token exists but user data is missing — clear the broken session
+          await _authService.logout();
+          _status = AuthStatus.unauthenticated;
+        }
       } else {
         _status = AuthStatus.unauthenticated;
       }

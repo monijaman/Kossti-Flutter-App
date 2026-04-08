@@ -164,8 +164,19 @@ class _HomeTab extends StatelessWidget {
             const SizedBox(height: 8),
             Consumer<ProductProvider>(
               builder: (_, products, __) {
-                if (products.featuredProducts.isEmpty) {
+                if (products.featuredLoading) {
                   return const LoadingWidget();
+                }
+                if (products.featuredProducts.isEmpty) {
+                  return const SizedBox(
+                    height: 80,
+                    child: Center(
+                      child: Text(
+                        AppStrings.noData,
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ),
+                  );
                 }
                 return SizedBox(
                   height: 240,

@@ -12,7 +12,8 @@ import 'providers/theme_provider.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/home/home_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const KosstApp());
 }
 
