@@ -118,7 +118,7 @@ class _AdminBrandsScreenState extends State<AdminBrandsScreen> {
               controller: nameArController,
               textDirection: TextDirection.rtl,
               decoration:
-                  const InputDecoration(labelText: AppStrings.brandNameAr),
+                  const InputDecoration(labelText: AppStrings.brandNameBn),
             ),
             const SizedBox(height: 12),
             TextField(

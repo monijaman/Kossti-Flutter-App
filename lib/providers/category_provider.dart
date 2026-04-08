@@ -15,15 +15,19 @@ class CategoryProvider extends ChangeNotifier {
   bool get loading => _loading;
   List<Category> get categories => _categories;
   String? get errorMessage => _errorMessage;
+  bool get hasError => _errorMessage != null;
 
   Future<void> loadCategories() async {
     _loading = true;
     notifyListeners();
     try {
-      _categories = await _categoryService.getCategories();
+      _categories = (await _categoryService.getCategories())
+          .where((c) => c.isActive)
+          .toList();
       _errorMessage = null;
     } catch (e) {
       _errorMessage = e.toString();
+      print('Error loading categories: $e');
     }
     _loading = false;
     notifyListeners();

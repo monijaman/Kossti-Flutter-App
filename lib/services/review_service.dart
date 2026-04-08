@@ -8,25 +8,41 @@ class ReviewService {
   ReviewService({ApiClient? apiClient})
       : _apiClient = apiClient ?? ApiClient();
 
-  Future<List<Review>> getProductReviews(int productId, {int page = 1}) async {
+  Future<List<Review>> getProductReviews(int productId, {String locale = 'en'}) async {
     final response = await _apiClient.get(
-      '${AppConstants.productsEndpoint}/$productId${AppConstants.reviewsEndpoint}',
-      queryParams: {
-        'page': page.toString(),
-        'per_page': AppConstants.pageSize.toString(),
-      },
+      '${AppConstants.reviewsEndpoint}/$productId',
+      queryParams: {'locale': locale},
     );
-    final List<dynamic> data =
-        response['data'] ?? response as List<dynamic>;
-    return data
-        .map((r) => Review.fromJson(r as Map<String, dynamic>))
-        .toList();
+    print('API reviews response: $response');
+
+    // API returns: {"count":1, "reviews": [{"review": {...}}]}
+    // Unwrap the nested {review: {...}} structure
+    List<dynamic> data = [];
+    if (response is Map && response['reviews'] is List) {
+      final list = response['reviews'] as List;
+      data = list.map((item) {
+        // Each item is {review: {...}} - unwrap it
+        if (item is Map && item['review'] != null) return item['review'];
+        return item;
+      }).toList();
+    } else if (response is List) {
+      data = response;
+    }
+
+    return data.map((r) {
+      try {
+        return Review.fromJson(r as Map<String, dynamic>);
+      } catch (e) {
+        print('Error parsing review: $e\nData: $r');
+        return null;
+      }
+    }).whereType<Review>().toList();
   }
 
   Future<List<Review>> getAllReviews({String? status, int page = 1}) async {
     final params = <String, String>{
       'page': page.toString(),
-      'per_page': AppConstants.pageSize.toString(),
+      'pageSize': AppConstants.pageSize.toString(),
     };
     if (status != null) params['status'] = status;
 
@@ -43,8 +59,9 @@ class ReviewService {
 
   Future<Review> createReview(
       int productId, Map<String, dynamic> data) async {
+    data['productId'] = productId;
     final response = await _apiClient.post(
-      '${AppConstants.productsEndpoint}/$productId${AppConstants.reviewsEndpoint}',
+      AppConstants.reviewsEndpoint,
       body: data,
     );
     return Review.fromJson(response as Map<String, dynamic>);

@@ -1,17 +1,18 @@
 # Kossti Flutter App
 
-A multilingual Flutter mobile application for [kossti.com](https://kossti.com) — a product review platform supporting **English** and **Arabic** with RTL layout support.
+A multilingual Flutter mobile application for [kossti.com](https://kossti.com) — a product review platform supporting **English** and **Bengali (বাংলা)**.
 
 ## Features
 
-- 🌐 **Multilingual** — English & Arabic with full RTL support
-- 🏷️ **Product Browsing** — Browse, search, and filter products by category, brand, and rating
-- ⭐ **Product Reviews** — Write, view, and rate product reviews
+- 🌐 **Multilingual** — English & Bengali (বাংলা) support
+- 🏷️ **Product Browsing** — Browse, search, and filter products by category, brand, and price
+- ⭐ **Product Reviews** — Read and write product reviews with ratings
 - 📁 **Categories** — Browse all product categories
 - 🏢 **Brands** — Explore products by brand
 - 👤 **User Authentication** — Login, register, and manage your profile
-- 🛠️ **Admin Dashboard** — Manage products, categories, brands, and reviews
-- 🌙 **Dark / Light Mode** — System-aware with manual override
+- 🛠️ **Admin Dashboard** — Manage products, categories, brands, and reviews (admin only)
+- 🌙 **Dark / Light Mode** — System-aware theme with manual override
+- 📱 **Android-first** — Optimized Material Design 3 interface
 
 ## Tech Stack
 
@@ -51,15 +52,25 @@ lib/
 └── main.dart            # App entry point
 l10n/
 ├── app_en.arb           # English strings
-└── app_ar.arb           # Arabic strings
+└── app_bn.arb           # Bengali strings
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Flutter SDK ≥ 3.0.0
-- Dart SDK ≥ 3.0.0
+- **Flutter SDK ≥ 3.0.0**
+- **Dart SDK ≥ 3.0.0**
+- **Android Studio** (for Android development)
+- **Android SDK** (API level 21 or higher)
+
+### Installing Flutter (Windows)
+
+1. Download Flutter SDK from [https://docs.flutter.dev/get-started/install/windows](https://docs.flutter.dev/get-started/install/windows)
+2. Extract the zip file to `C:\flutter`
+3. Add `C:\flutter\bin` to your PATH environment variable
+4. Run `flutter doctor` to verify installation
+5. Install Android Studio and set up an Android emulator
 
 ### Setup
 
@@ -71,7 +82,7 @@ cd Kossti-Flutter-App
 # Install dependencies
 flutter pub get
 
-# Run the app
+# Run the app (connect device or start emulator first)
 flutter run
 ```
 
@@ -80,8 +91,21 @@ flutter run
 Update the `baseUrl` in `lib/core/constants/app_constants.dart`:
 
 ```dart
-static const String baseUrl = 'https://kossti.com/api';
+// For local development:
+static const String baseUrl = 'http://localhost:8080';
+
+// For production:
+static const String baseUrl = 'https://kossti.com';
 ```
+
+**Note:** The app is configured to work with the Go backend (gocrit_server) API endpoints:
+- `GET /products` — List products with pagination
+- `GET /popular-products` — Featured products
+- `GET /categories` — All categories
+- `GET /brands` — All brands
+- `GET /product-reviews?productId={id}` — Product reviews
+- `POST /api/login` — User login
+- `POST /api/register` — User registration
 
 ## Running Tests
 
@@ -101,8 +125,9 @@ flutter build ios --release
 
 ## Localization
 
-The app supports English (`en`) and Arabic (`ar`). Language files are in `l10n/`.
+The app supports **English (`en`)** and **Bengali (`bn`)**. Language files are in `l10n/`.
 
 To add a new language:
 1. Create `l10n/app_<locale>.arb`
 2. Add the new `Locale` to `supportedLocales` in `main.dart`
+3. Update the language selection in `lib/screens/settings/settings_screen.dart`

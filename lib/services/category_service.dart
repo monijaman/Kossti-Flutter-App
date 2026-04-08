@@ -8,11 +8,20 @@ class CategoryService {
   CategoryService({ApiClient? apiClient})
       : _apiClient = apiClient ?? ApiClient();
 
-  Future<List<Category>> getCategories() async {
-    final response =
-        await _apiClient.get(AppConstants.categoriesEndpoint);
+  Future<List<Category>> getCategories({String locale = 'en'}) async {
+    final response = await _apiClient.get(
+      '/wide-categories',
+      queryParams: {
+        'status': '1',
+        'per_page': '100',
+        'paginate': 'false',
+        'locale': locale,
+      },
+    );
     final List<dynamic> data =
-        response['data'] ?? response as List<dynamic>;
+        response['categories'] as List<dynamic>? ??
+        response['data'] as List<dynamic>? ??
+        response as List<dynamic>;
     return data
         .map((c) => Category.fromJson(c as Map<String, dynamic>))
         .toList();

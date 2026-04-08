@@ -15,6 +15,7 @@ class BrandProvider extends ChangeNotifier {
   bool get loading => _loading;
   List<Brand> get brands => _brands;
   String? get errorMessage => _errorMessage;
+  bool get hasError => _errorMessage != null;
 
   Future<void> loadBrands() async {
     _loading = true;
@@ -24,6 +25,7 @@ class BrandProvider extends ChangeNotifier {
       _errorMessage = null;
     } catch (e) {
       _errorMessage = e.toString();
+      print('Error loading brands: $e');
     }
     _loading = false;
     notifyListeners();

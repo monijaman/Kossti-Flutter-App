@@ -10,10 +10,31 @@ class BrandService {
   Future<List<Brand>> getBrands() async {
     final response = await _apiClient.get(AppConstants.brandsEndpoint);
     final List<dynamic> data =
-        response['data'] ?? response as List<dynamic>;
+        response['brands'] as List<dynamic>? ??
+        response['data'] as List<dynamic>? ??
+        response as List<dynamic>;
     return data
         .map((b) => Brand.fromJson(b as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<List<Brand>> getCategoryBrands(String categorySlug, {String locale = 'en'}) async {
+    try {
+      final response = await _apiClient.get(
+        '/category-brands',
+        queryParams: {'category_slug': categorySlug, 'locale': locale},
+      );
+      final List<dynamic> data =
+          response['brands'] as List<dynamic>? ??
+          response['data'] as List<dynamic>? ??
+          (response is List ? response : []);
+      return data
+          .map((b) => Brand.fromJson(b as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error fetching category brands: $e');
+      return [];
+    }
   }
 
   Future<Brand> getBrand(int id) async {

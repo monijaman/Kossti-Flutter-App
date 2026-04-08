@@ -2,17 +2,21 @@ class AppConstants {
   // App info
   static const String appName = 'Kossti';
   static const String appVersion = '1.0.0';
-  static const String baseUrl = 'https://kossti.com/api';
+  static const String baseUrl = 'https://gocritserver-production.up.railway.app';
 
   // API endpoints
   static const String productsEndpoint = '/products';
   static const String categoriesEndpoint = '/categories';
   static const String brandsEndpoint = '/brands';
-  static const String reviewsEndpoint = '/reviews';
-  static const String authLoginEndpoint = '/auth/login';
-  static const String authRegisterEndpoint = '/auth/register';
-  static const String authLogoutEndpoint = '/auth/logout';
-  static const String profileEndpoint = '/profile';
+  static const String reviewsEndpoint = '/product-reviews';
+  static const String authLoginEndpoint = '/api/login';
+  static const String authRegisterEndpoint = '/api/register';
+  static const String authLogoutEndpoint = '/api/v1/logout';
+  static const String profileEndpoint = '/users';
+  static const String popularProductsEndpoint = '/popular-products';
+  static const String specificationsEndpoint = '/specifications';
+  static const String publicSpecEndpoint = '/get-public-spec';
+  static const String publicReviewsEndpoint = '/public-reviews';
 
   // Shared preferences keys
   static const String prefToken = 'auth_token';
@@ -22,7 +26,7 @@ class AppConstants {
 
   // Supported locales
   static const String localeEnglish = 'en';
-  static const String localeArabic = 'ar';
+  static const String localeBengali = 'bn';
 
   // Pagination
   static const int pageSize = 20;

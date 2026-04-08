@@ -120,7 +120,7 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
               controller: nameArController,
               textDirection: TextDirection.rtl,
               decoration:
-                  const InputDecoration(labelText: AppStrings.categoryNameAr),
+                  const InputDecoration(labelText: AppStrings.categoryNameBn),
             ),
             const SizedBox(height: 20),
             ElevatedButton(

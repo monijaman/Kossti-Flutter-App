@@ -21,7 +21,7 @@
   "reviews": "التقييمات",
   "writeReview": "اكتب تقييماً",
   "submitReview": "إرسال التقييم",
-  "noReviews": "لا توجد تقييمات بعد. كن أول من يقيّم!",
+  "noReviews": "لا توجد مراجعات بعد",
   "adminDashboard": "لوحة الإدارة",
   "manageProducts": "إدارة المنتجات",
   "manageCategories": "إدارة الفئات",
@@ -35,5 +35,10 @@
   "language": "اللغة",
   "darkMode": "الوضع المظلم",
   "english": "الإنجليزية",
-  "arabic": "العربية"
+  "arabic": "العربية",
+  "allCategories": "جميع الفئات",
+  "allBrands": "جميع العلامات",
+  "description": "الوصف",
+  "noDescription": "لا يوجد وصف",
+  "searchHint": "البحث عن المنتجات والعلامات..."
 }

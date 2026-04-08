@@ -36,13 +36,10 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _initialize() async {
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
-    final auth = context.read<AuthProvider>();
-    await auth.initialize();
-    if (!mounted) return;
+    // Skip authentication - go directly to home screen
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) =>
-            auth.isAuthenticated ? const HomeScreen() : const LoginScreen(),
+        builder: (_) => const HomeScreen(),
       ),
     );
   }
@@ -66,11 +63,11 @@ class _SplashScreenState extends State<SplashScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 100,
-                  height: 100,
+                  width: 120,
+                  height: 120,
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
+                    color: const Color(0xFFB4D2FC),
+                    borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withAlpha(40),
@@ -83,10 +80,9 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Text(
                       'K',
                       style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 52,
+                        color: Color(0xFF2D64DC),
+                        fontSize: 60,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'Cairo',
                       ),
                     ),
                   ),
@@ -98,8 +94,7 @@ class _SplashScreenState extends State<SplashScreen>
                     color: Colors.white,
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'Cairo',
-                    letterSpacing: 1.2,
+                    letterSpacing: 1.0,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -108,7 +103,6 @@ class _SplashScreenState extends State<SplashScreen>
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
-                    fontFamily: 'Cairo',
                   ),
                 ),
               ],

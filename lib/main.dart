@@ -42,7 +42,7 @@ class KosstApp extends StatelessWidget {
             locale: localeProvider.locale,
             supportedLocales: const [
               Locale('en'),
-              Locale('ar'),
+              Locale('bn'),
             ],
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
@@ -51,8 +51,8 @@ class KosstApp extends StatelessWidget {
             ],
             builder: (context, child) {
               return Directionality(
-                textDirection: localeProvider.isArabic
-                    ? TextDirection.rtl
+                textDirection: localeProvider.isBengali
+                    ? TextDirection.ltr
                     : TextDirection.ltr,
                 child: child!,
               );

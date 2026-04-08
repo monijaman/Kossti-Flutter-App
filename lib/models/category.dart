@@ -7,6 +7,7 @@ class Category {
   final String? imageUrl;
   final String slug;
   final int productCount;
+  final bool isActive;
 
   Category({
     required this.id,
@@ -17,9 +18,12 @@ class Category {
     this.imageUrl,
     required this.slug,
     this.productCount = 0,
+    this.isActive = true,
   });
 
   factory Category.fromJson(Map<String, dynamic> json) {
+    final status = json['status'];
+    final active = status == 1 || status == true || status == '1';
     return Category(
       id: json['id'] as int,
       name: json['name'] as String,
@@ -28,7 +32,8 @@ class Category {
       descriptionAr: json['description_ar'] as String?,
       imageUrl: json['image_url'] as String?,
       slug: (json['slug'] ?? json['id'].toString()) as String,
-      productCount: (json['product_count'] ?? 0) as int,
+      productCount: (json['product_count'] ?? json['total'] ?? 0) as int,
+      isActive: status == null ? true : active,
     );
   }
 

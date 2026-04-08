@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_html/flutter_html.dart';
 import '../../models/review.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
@@ -83,12 +84,23 @@ class ReviewCard extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 6),
-            Text(
-              review.body,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+            if (review.body.isNotEmpty)
+              Html(
+                data: review.body,
+                style: {
+                  'body': Style(
+                    fontSize: FontSize(14),
+                    color: AppColors.textSecondary,
+                    margin: Margins.zero,
+                    padding: HtmlPaddings.zero,
+                  ),
+                  'h1': Style(fontSize: FontSize(16), fontWeight: FontWeight.bold),
+                  'h2': Style(fontSize: FontSize(15), fontWeight: FontWeight.bold),
+                  'h3': Style(fontSize: FontSize(14), fontWeight: FontWeight.bold),
+                  'p': Style(margin: Margins.only(bottom: 6)),
+                  'li': Style(fontSize: FontSize(13)),
+                },
               ),
-            ),
             if (showActions) ...[
               const SizedBox(height: 12),
               const Divider(),
@@ -148,6 +160,10 @@ class ReviewCard extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+    const months = [
+      'Jan','Feb','Mar','Apr','May','Jun',
+      'Jul','Aug','Sep','Oct','Nov','Dec'
+    ];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 }

@@ -20,6 +20,7 @@ class Product {
   final bool isActive;
   final DateTime? createdAt;
   final List<Review> reviews;
+  final List<Map<String, dynamic>> specifications;
 
   Product({
     required this.id,
@@ -39,6 +40,7 @@ class Product {
     this.isActive = true,
     this.createdAt,
     this.reviews = const [],
+    this.specifications = const [],
   });
 
   String get displayImage => imageUrl ?? (images.isNotEmpty ? images.first : '');
@@ -57,7 +59,7 @@ class Product {
       description: json['description'] as String?,
       descriptionAr: json['description_ar'] as String?,
       price: (json['price'] as num).toDouble(),
-      imageUrl: json['image_url'] as String?,
+      imageUrl: (json['photo'] ?? json['image_url']) as String?,
       images: json['images'] != null
           ? List<String>.from(json['images'] as List)
           : [],
@@ -80,6 +82,9 @@ class Product {
               .map((r) => Review.fromJson(r as Map<String, dynamic>))
               .toList()
           : [],
+      specifications: json['specifications'] != null
+          ? List<Map<String, dynamic>>.from(json['specifications'] as List)
+          : [],
     );
   }
 
@@ -99,6 +104,7 @@ class Product {
       'is_featured': isFeatured,
       'is_active': isActive,
       'created_at': createdAt?.toIso8601String(),
+      'specifications': specifications,
     };
   }
 }

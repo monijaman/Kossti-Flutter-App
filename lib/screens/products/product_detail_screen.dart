@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart' show RatingBarIndicator;
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/review_provider.dart';
 import '../../providers/locale_provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../../widgets/common/app_error_widget.dart';
 import '../../widgets/common/review_card.dart';
-import '../auth/login_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
@@ -60,8 +58,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         final product = productProvider.selectedProduct;
         if (product == null) return const Scaffold(body: LoadingWidget());
 
-        final images = product.images.isNotEmpty
-            ? product.images
+        final images = productProvider.productImages.isNotEmpty
+            ? productProvider.productImages
             : (product.imageUrl != null ? [product.imageUrl!] : <String>[]);
 
         return Scaffold(
@@ -70,6 +68,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               SliverAppBar(
                 expandedHeight: 280,
                 pinned: true,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
                 flexibleSpace: FlexibleSpaceBar(
                   background: images.isNotEmpty
                       ? PageView.builder(
@@ -188,52 +190,42 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            AppStrings.reviews,
-                            style: theme.textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          Consumer<AuthProvider>(
-                            builder: (_, auth, __) => TextButton.icon(
-                              onPressed: () {
-                                if (!auth.isAuthenticated) {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                        builder: (_) => const LoginScreen()),
-                                  );
-                                  return;
-                                }
-                                _showAddReviewSheet(context);
-                              },
-                              icon: const Icon(Icons.rate_review_outlined,
-                                  size: 18),
-                              label: const Text(AppStrings.writeReview),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Consumer<ReviewProvider>(
-                        builder: (_, reviewProvider, __) {
-                          if (reviewProvider.loading) {
-                            return const LoadingWidget();
-                          }
-                          if (reviewProvider.reviews.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(
-                                  child: Text(AppStrings.noReviews)),
+                      const Divider(),
+                      const SizedBox(height: 16),
+                      // Reviews and Specifications side-by-side layout
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isWide = constraints.maxWidth > 800;
+
+                          if (isWide) {
+                            // Side-by-side: Reviews (left) and Specs (right)
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Reviews (40%)
+                                Expanded(
+                                  flex: 2,
+                                  child: _buildReviewsSection(context, theme),
+                                ),
+                                const SizedBox(width: 24),
+                                // Specifications (60%)
+                                Expanded(
+                                  flex: 3,
+                                  child: _buildSpecificationsSection(context, theme),
+                                ),
+                              ],
+                            );
+                          } else {
+                            // Stacked: Reviews then Specs
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildReviewsSection(context, theme),
+                                const SizedBox(height: 24),
+                                _buildSpecificationsSection(context, theme),
+                              ],
                             );
                           }
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: reviewProvider.reviews.length,
-                            itemBuilder: (_, i) =>
-                                ReviewCard(review: reviewProvider.reviews[i]),
-                          );
                         },
                       ),
                     ],
@@ -247,124 +239,151 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  void _showAddReviewSheet(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-    final titleController = TextEditingController();
-    final bodyController = TextEditingController();
-    double rating = 4.0;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 20,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+  Widget _buildReviewsSection(BuildContext context, ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          AppStrings.reviews,
+          style: theme.textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
         ),
-        child: StatefulBuilder(
-          builder: (ctx, setSheetState) => Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+        const SizedBox(height: 12),
+        Consumer<ReviewProvider>(
+          builder: (_, reviewProvider, __) {
+            if (reviewProvider.loading) {
+              return const LoadingWidget();
+            }
+            if (reviewProvider.errorMessage != null) {
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'Error: ${reviewProvider.errorMessage}',
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              );
+            }
+            if (reviewProvider.reviews.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: Text(AppStrings.noReviews)),
+              );
+            }
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: reviewProvider.reviews.length,
+              itemBuilder: (_, i) =>
+                  ReviewCard(review: reviewProvider.reviews[i]),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSpecificationsSection(BuildContext context, ThemeData theme) {
+    return Consumer<ProductProvider>(
+      builder: (_, productProvider, __) {
+        final specs = productProvider.publicSpecifications;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF3D3300),
+                border: const Border(
+                  left: BorderSide(color: Color(0xFFB8860B), width: 4),
+                ),
+              ),
+              child: const Text(
+                'Unofficial specifications',
+                style: TextStyle(fontSize: 12, color: Color(0xFFD4A017)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Specifications',
+              style: theme.textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (specs.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('No specifications available'),
+              )
+            else
+              // 2 specs per row, matching crit_client layout
+              Table(
+                border: TableBorder.all(color: AppColors.border, width: 0.5),
+                children: List.generate(
+                  (specs.length / 2).ceil(),
+                  (rowIndex) {
+                    final left = specs[rowIndex * 2];
+                    final right = rowIndex * 2 + 1 < specs.length
+                        ? specs[rowIndex * 2 + 1]
+                        : null;
+                    return TableRow(
+                      children: [
+                        _specCell(
+                          left['translated_key'] ?? '',
+                          left['translated_value'] ?? '',
+                          isAlt: false,
+                        ),
+                        _specCell(
+                          right?['translated_key'] ?? '',
+                          right?['translated_value'] ?? '',
+                          isAlt: true,
+                          isEmpty: right == null,
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _specCell(String key, String value,
+      {bool isAlt = false, bool isEmpty = false}) {
+    return Container(
+      color: isAlt
+          ? const Color(0xFF1A1A2E).withAlpha(30)
+          : Colors.transparent,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: isEmpty
+          ? const SizedBox.shrink()
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.border,
-                      borderRadius: BorderRadius.circular(2),
+                Flexible(
+                  flex: 1,
+                  child: Text(
+                    key,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                Text(AppStrings.writeReview,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 16),
-                Text(AppStrings.yourRating),
-                const SizedBox(height: 8),
-                RatingBar.builder(
-                  initialRating: rating,
-                  minRating: 1,
-                  itemSize: 36,
-                  itemBuilder: (_, __) =>
-                      const Icon(Icons.star, color: AppColors.star),
-                  onRatingUpdate: (r) =>
-                      setSheetState(() => rating = r),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: AppStrings.reviewTitle,
-                  ),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? AppStrings.titleRequired : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: bodyController,
-                  maxLines: 4,
-                  decoration: const InputDecoration(
-                    labelText: AppStrings.reviewBody,
-                    alignLabelWithHint: true,
-                  ),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? AppStrings.reviewRequired : null,
-                ),
-                const SizedBox(height: 20),
-                Consumer<ReviewProvider>(
-                  builder: (_, reviewProvider, __) =>
-                      ElevatedButton(
-                    onPressed: reviewProvider.submitting
-                        ? null
-                        : () async {
-                            if (!formKey.currentState!.validate()) return;
-                            final success =
-                                await reviewProvider.submitReview(
-                              widget.productId,
-                              {
-                                'title': titleController.text,
-                                'body': bodyController.text,
-                                'rating': rating,
-                              },
-                            );
-                            if (success && ctx.mounted) {
-                              Navigator.pop(ctx);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      AppStrings.reviewSubmitted),
-                                ),
-                              );
-                            }
-                          },
-                    child: reviewProvider.submitting
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text(AppStrings.submitReview),
+                const SizedBox(width: 8),
+                Flexible(
+                  flex: 1,
+                  child: Text(
+                    value,
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(fontSize: 13),
                   ),
                 ),
               ],
             ),
-          ),
-        ),
-      ),
     );
   }
 }

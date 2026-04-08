@@ -21,7 +21,7 @@
   "reviews": "Reviews",
   "writeReview": "Write a Review",
   "submitReview": "Submit Review",
-  "noReviews": "No reviews yet. Be the first to review!",
+  "noReviews": "No reviews yet",
   "adminDashboard": "Admin Dashboard",
   "manageProducts": "Manage Products",
   "manageCategories": "Manage Categories",
@@ -35,5 +35,10 @@
   "language": "Language",
   "darkMode": "Dark Mode",
   "english": "English",
-  "arabic": "Arabic"
+  "bengali": "বাংলা",
+  "allCategories": "All Categories",
+  "allBrands": "All Brands",
+  "description": "Description",
+  "noDescription": "No description available",
+  "searchHint": "Search products, brands..."
 }

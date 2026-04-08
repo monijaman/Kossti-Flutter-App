@@ -20,12 +20,14 @@ class ReviewProvider extends ChangeNotifier {
 
   Future<void> loadProductReviews(int productId) async {
     _loading = true;
+    _reviews = [];
+    _errorMessage = null;
     notifyListeners();
     try {
       _reviews = await _reviewService.getProductReviews(productId);
-      _errorMessage = null;
     } catch (e) {
       _errorMessage = e.toString();
+      print('ReviewProvider error: $e');
     }
     _loading = false;
     notifyListeners();

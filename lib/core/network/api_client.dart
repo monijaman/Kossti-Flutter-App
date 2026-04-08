@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -49,6 +50,8 @@ class ApiClient {
       return _handleResponse(response);
     } on SocketException {
       throw ApiException('No internet connection');
+    } on TimeoutException {
+      throw ApiException('Request timed out');
     } on HttpException {
       throw ApiException('HTTP error occurred');
     }

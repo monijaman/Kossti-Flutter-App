@@ -36,14 +36,24 @@ class _ProductListScreenState extends State<ProductListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ProductProvider>();
-      provider.setFilter(
-        categoryId: widget.categoryId,
-        brandId: widget.brandId,
-        sortBy: _sortBy,
-      );
+
+      // Set all filters at once, then load - avoid duplicate API calls
       if (widget.initialSearch != null) {
         _searchController.text = widget.initialSearch!;
+        print('Setting search query: ${widget.initialSearch}');
         provider.setSearchQuery(widget.initialSearch!);
+      } else if (widget.categoryId != null || widget.brandId != null) {
+        // Only call setFilter if we have category or brand filters
+        print('Setting filters - category: ${widget.categoryId}, brand: ${widget.brandId}');
+        provider.setFilter(
+          categoryId: widget.categoryId,
+          brandId: widget.brandId,
+          sortBy: _sortBy,
+        );
+      } else {
+        // Otherwise just load products with current filters
+        print('Loading products with current filters');
+        provider.loadProducts(refresh: true);
       }
     });
     _scrollController.addListener(_onScroll);

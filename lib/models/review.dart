@@ -28,16 +28,25 @@ class Review {
 
   factory Review.fromJson(Map<String, dynamic> json) {
     return Review(
-      id: json['id'] as int,
-      productId: json['product_id'] as int,
+      id: (json['id'] ?? 0) as int,
+      productId: (json['product_id'] ?? 0) as int,
       author: json['author'] != null
           ? User.fromJson(json['author'] as Map<String, dynamic>)
           : null,
       title: (json['title'] ?? '') as String,
-      body: (json['body'] ?? json['content'] ?? '') as String,
-      rating: (json['rating'] as num).toDouble(),
-      status: (json['status'] ?? 'pending') as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      // API returns HTML content in 'reviews' field
+      body: (json['reviews'] ?? json['body'] ?? json['content'] ?? '') as String,
+      // API returns rating as string "3.50" or number
+      rating: json['rating'] is String
+          ? double.tryParse(json['rating'] as String) ?? 0.0
+          : ((json['rating'] ?? 0) as num).toDouble(),
+      // API returns status as bool (false/true) or string
+      status: json['status'] is bool
+          ? (json['status'] == true ? 'approved' : 'pending')
+          : (json['status']?.toString() ?? 'approved'),
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
+          : DateTime.now(),
       helpfulCount: (json['helpful_count'] ?? 0) as int,
     );
   }

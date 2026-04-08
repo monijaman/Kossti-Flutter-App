@@ -1,15 +1,16 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
-import '../../providers/brand_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../widgets/common/product_card.dart';
-import '../../widgets/common/category_card.dart';
-import '../../widgets/common/brand_card.dart';
 import '../../widgets/common/loading_widget.dart';
+import '../../services/brand_service.dart';
+import '../../models/brand.dart';
 import '../products/product_list_screen.dart';
 import '../products/product_detail_screen.dart';
 import '../categories/categories_screen.dart';
@@ -34,16 +35,14 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProductProvider>().loadFeaturedProducts();
       context.read<CategoryProvider>().loadCategories();
-      context.read<BrandProvider>().loadBrands();
     });
   }
 
-  final List<Widget> _screens = const [
-    _HomeTab(),
-    ProductListScreen(),
-    CategoriesScreen(),
-    BrandsScreen(),
-    ProfileScreen(),
+  final List<Widget> _screens = [
+    const _HomeTab(),
+    const ProductListScreen(),
+    const CategoriesScreen(),
+    const BrandsScreen(),
   ];
 
   @override
@@ -56,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
@@ -77,19 +77,65 @@ class _HomeScreenState extends State<HomeScreen> {
             activeIcon: Icon(Icons.business),
             label: AppStrings.brands,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: AppStrings.profile,
-          ),
         ],
       ),
     );
   }
 }
 
-class _HomeTab extends StatelessWidget {
+class _HomeTab extends StatefulWidget {
   const _HomeTab();
+
+  @override
+  State<_HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<_HomeTab> {
+  final _searchController = TextEditingController();
+  Timer? _debounce;
+  int? _selectedCategoryId;
+  String? _selectedCategorySlug;
+  String? _selectedCategoryName;
+  List<Brand> _categoryBrands = [];
+  bool _brandsLoading = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    _debounce?.cancel();
+    if (query.isEmpty) return;
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (mounted && query.isNotEmpty) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ProductListScreen(initialSearch: query),
+          ),
+        ).then((_) => _searchController.clear());
+      }
+    });
+  }
+
+  Future<void> _onCategorySelected(int id, String slug, String name) async {
+    setState(() {
+      _selectedCategoryId = id;
+      _selectedCategorySlug = slug;
+      _selectedCategoryName = name;
+      _categoryBrands = [];
+      _brandsLoading = true;
+    });
+    final brands = await BrandService().getCategoryBrands(slug);
+    if (mounted) {
+      setState(() {
+        _categoryBrands = brands;
+        _brandsLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +144,10 @@ class _HomeTab extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.appName),
+        title: SvgPicture.asset(
+          'assets/images/kossti.svg',
+          height: 32,
+        ),
         actions: [
           if (auth.isAdmin)
             IconButton(
@@ -128,12 +177,17 @@ class _HomeTab extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TextField(
+                controller: _searchController,
+                onChanged: _onSearchChanged,
                 onSubmitted: (q) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ProductListScreen(initialSearch: q),
-                    ),
-                  );
+                  _debounce?.cancel();
+                  if (q.isNotEmpty) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ProductListScreen(initialSearch: q),
+                      ),
+                    ).then((_) => _searchController.clear());
+                  }
                 },
                 decoration: const InputDecoration(
                   hintText: AppStrings.searchHint,
@@ -164,6 +218,15 @@ class _HomeTab extends StatelessWidget {
             const SizedBox(height: 8),
             Consumer<ProductProvider>(
               builder: (_, products, __) {
+                if (products.errorMessage != null) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      'Error: ${products.errorMessage}',
+                      style: theme.textTheme.bodySmall?.copyWith(color: Colors.red),
+                    ),
+                  );
+                }
                 if (products.featuredProducts.isEmpty) {
                   return const LoadingWidget();
                 }
@@ -202,7 +265,9 @@ class _HomeTab extends StatelessWidget {
                     style: theme.textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.bold)),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const CategoriesScreen()),
+                  ),
                   child: const Text(AppStrings.seeAll),
                 ),
               ],
@@ -211,71 +276,97 @@ class _HomeTab extends StatelessWidget {
             Consumer<CategoryProvider>(
               builder: (_, cats, __) {
                 if (cats.loading) return const LoadingWidget();
-                final displayed = cats.categories.take(6).toList();
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 0.9,
-                  ),
-                  itemCount: displayed.length,
-                  itemBuilder: (_, i) => CategoryCard(
-                    category: displayed[i],
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => ProductListScreen(
-                          categoryId: displayed[i].id,
+                if (cats.categories.isEmpty) return const SizedBox.shrink();
+                return Column(
+                  children: cats.categories.map((cat) {
+                    final isSelected = _selectedCategoryId == cat.id;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InkWell(
+                          onTap: () => _onCategorySelected(cat.id, cat.slug, cat.name),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primary.withAlpha(30)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: isSelected
+                                  ? Border.all(color: AppColors.primary.withAlpha(80))
+                                  : null,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  cat.name,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    color: isSelected ? AppColors.primary : null,
+                                  ),
+                                ),
+                                if (cat.productCount > 0)
+                                  Text(
+                                    '${cat.productCount}',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 24),
-
-            // Brands
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(AppStrings.allBrands,
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(AppStrings.seeAll),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Consumer<BrandProvider>(
-              builder: (_, brands, __) {
-                if (brands.loading) return const LoadingWidget();
-                final displayed = brands.brands.take(6).toList();
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 0.9,
-                  ),
-                  itemCount: displayed.length,
-                  itemBuilder: (_, i) => BrandCard(
-                    brand: displayed[i],
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ProductListScreen(brandId: displayed[i].id),
-                      ),
-                    ),
-                  ),
+                        // Show brands under selected category
+                        if (isSelected) ...[
+                          const SizedBox(height: 8),
+                          if (_brandsLoading)
+                            const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                            )
+                          else if (_categoryBrands.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              child: Text(
+                                'No brands in this category',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                    color: AppColors.textSecondary),
+                              ),
+                            )
+                          else
+                            Padding(
+                              padding: const EdgeInsets.only(left: 12, bottom: 4),
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: _categoryBrands.map((brand) {
+                                  return ActionChip(
+                                    label: Text(brand.name),
+                                    onPressed: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => ProductListScreen(
+                                          categoryId: _selectedCategoryId,
+                                          brandId: brand.id,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          const SizedBox(height: 4),
+                        ],
+                        const Divider(height: 1),
+                      ],
+                    );
+                  }).toList(),
                 );
               },
             ),
