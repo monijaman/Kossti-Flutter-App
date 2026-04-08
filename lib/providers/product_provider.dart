@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/constants/app_constants.dart';
 import '../models/product.dart';
 import '../services/product_service.dart';
 
@@ -10,7 +11,11 @@ class ProductProvider extends ChangeNotifier {
   ProductState _state = ProductState.initial;
   List<Product> _products = [];
   List<Product> _featuredProducts = [];
+  List<Product> _popularProducts = [];
   bool _featuredLoading = false;
+  bool _popularLoading = false;
+  int _popularPage = 1;
+  bool _popularHasMore = true;
   Product? _selectedProduct;
   String? _errorMessage;
   int _currentPage = 1;
@@ -28,10 +33,13 @@ class ProductProvider extends ChangeNotifier {
   ProductState get state => _state;
   List<Product> get products => _products;
   List<Product> get featuredProducts => _featuredProducts;
+  List<Product> get popularProducts => _popularProducts;
   Product? get selectedProduct => _selectedProduct;
   String? get errorMessage => _errorMessage;
   bool get hasMore => _hasMore;
   bool get featuredLoading => _featuredLoading;
+  bool get popularLoading => _popularLoading;
+  bool get popularHasMore => _popularHasMore;
   int? get selectedCategoryId => _selectedCategoryId;
   int? get selectedBrandId => _selectedBrandId;
   String get searchQuery => _searchQuery;
@@ -80,6 +88,33 @@ class ProductProvider extends ChangeNotifier {
       _featuredProducts = [];
     }
     _featuredLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> loadPopularProducts({bool refresh = false}) async {
+    if (refresh) {
+      _popularPage = 1;
+      _popularHasMore = true;
+      _popularProducts = [];
+    }
+    if (!_popularHasMore) return;
+    if (_popularLoading) return;
+
+    _popularLoading = true;
+    notifyListeners();
+    try {
+      final fetched = await _productService.getProducts(
+        page: _popularPage,
+        sortBy: 'top_rated',
+      );
+      _popularProducts.addAll(fetched);
+      _popularHasMore = fetched.length >= AppConstants.pageSize;
+      _popularPage++;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _popularHasMore = false;
+    }
+    _popularLoading = false;
     notifyListeners();
   }
 

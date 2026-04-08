@@ -7,6 +7,8 @@ class ReviewProvider extends ChangeNotifier {
 
   bool _loading = false;
   List<Review> _reviews = [];
+  List<Review> _latestReviews = [];
+  bool _latestLoading = false;
   String? _errorMessage;
   bool _submitting = false;
 
@@ -15,6 +17,8 @@ class ReviewProvider extends ChangeNotifier {
 
   bool get loading => _loading;
   List<Review> get reviews => _reviews;
+  List<Review> get latestReviews => _latestReviews;
+  bool get latestLoading => _latestLoading;
   String? get errorMessage => _errorMessage;
   bool get submitting => _submitting;
 
@@ -41,6 +45,20 @@ class ReviewProvider extends ChangeNotifier {
       _errorMessage = e.toString();
     }
     _loading = false;
+    notifyListeners();
+  }
+
+  Future<void> loadLatestReviews() async {
+    _latestLoading = true;
+    notifyListeners();
+    try {
+      _latestReviews = await _reviewService.getLatestReviews();
+      _errorMessage = null;
+    } catch (e) {
+      _latestReviews = [];
+      _errorMessage = e.toString();
+    }
+    _latestLoading = false;
     notifyListeners();
   }
 

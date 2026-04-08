@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/category_provider.dart';
-import '../../providers/brand_provider.dart';
+import '../../providers/review_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/locale_provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../widgets/common/product_card.dart';
-import '../../widgets/common/category_card.dart';
-import '../../widgets/common/brand_card.dart';
+import '../../widgets/common/review_card.dart';
 import '../../widgets/common/loading_widget.dart';
 import '../products/product_list_screen.dart';
 import '../products/product_detail_screen.dart';
@@ -32,9 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductProvider>().loadFeaturedProducts();
+      context.read<ProductProvider>().loadPopularProducts(refresh: true);
       context.read<CategoryProvider>().loadCategories();
-      context.read<BrandProvider>().loadBrands();
+      context.read<ReviewProvider>().loadLatestReviews();
     });
   }
 
@@ -117,183 +117,281 @@ class _HomeTab extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search bar
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                onSubmitted: (q) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ProductListScreen(initialSearch: q),
-                    ),
-                  );
-                },
-                decoration: const InputDecoration(
-                  hintText: AppStrings.searchHint,
-                  prefixIcon: Icon(Icons.search),
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
+            // 1. Categories horizontal scroll
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _SectionHeader(
+                title: AppStrings.allCategories,
+                onSeeAll: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const CategoriesScreen()),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Featured Products
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(AppStrings.featuredProducts,
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-                TextButton(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const ProductListScreen()),
-                  ),
-                  child: const Text(AppStrings.seeAll),
-                ),
-              ],
-            ),
             const SizedBox(height: 8),
-            Consumer<ProductProvider>(
-              builder: (_, products, __) {
-                if (products.featuredLoading) {
-                  return const LoadingWidget();
-                }
-                if (products.featuredProducts.isEmpty) {
-                  return const SizedBox(
-                    height: 80,
-                    child: Center(
-                      child: Text(
-                        AppStrings.noData,
-                        style: TextStyle(color: AppColors.textSecondary),
-                      ),
-                    ),
-                  );
-                }
-                return SizedBox(
-                  height: 240,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: products.featuredProducts.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
-                    itemBuilder: (_, i) {
-                      final p = products.featuredProducts[i];
-                      return SizedBox(
-                        width: 160,
-                        child: ProductCard(
-                          product: p,
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  ProductDetailScreen(productId: p.id),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 24),
+            const _CategoriesRow(),
+            const SizedBox(height: 20),
 
-            // Categories
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(AppStrings.allCategories,
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(AppStrings.seeAll),
+            // 2. Search bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Consumer<CategoryProvider>(
-              builder: (_, cats, __) {
-                if (cats.loading) return const LoadingWidget();
-                final displayed = cats.categories.take(6).toList();
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 0.9,
-                  ),
-                  itemCount: displayed.length,
-                  itemBuilder: (_, i) => CategoryCard(
-                    category: displayed[i],
-                    onTap: () => Navigator.of(context).push(
+                child: TextField(
+                  onSubmitted: (q) {
+                    Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => ProductListScreen(
-                          categoryId: displayed[i].id,
-                        ),
+                        builder: (_) => ProductListScreen(initialSearch: q),
                       ),
-                    ),
+                    );
+                  },
+                  decoration: const InputDecoration(
+                    hintText: AppStrings.searchHint,
+                    prefixIcon: Icon(Icons.search),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
                   ),
-                );
-              },
+                ),
+              ),
             ),
             const SizedBox(height: 24),
 
-            // Brands
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(AppStrings.allBrands,
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(AppStrings.seeAll),
+            // 3. Popular Products with pagination
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _SectionHeader(
+                title: AppStrings.popularProducts,
+                onSeeAll: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ProductListScreen(),
+                  ),
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: 8),
-            Consumer<BrandProvider>(
-              builder: (_, brands, __) {
-                if (brands.loading) return const LoadingWidget();
-                final displayed = brands.brands.take(6).toList();
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 0.9,
-                  ),
-                  itemCount: displayed.length,
-                  itemBuilder: (_, i) => BrandCard(
-                    brand: displayed[i],
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ProductListScreen(brandId: displayed[i].id),
-                      ),
-                    ),
-                  ),
-                );
-              },
+            const _PopularProductsGrid(),
+            const SizedBox(height: 24),
+
+            // 4. Latest Reviews
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                AppStrings.latestReviews,
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
             ),
+            const SizedBox(height: 8),
+            const _LatestReviewsList(),
             const SizedBox(height: 24),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final VoidCallback? onSeeAll;
+
+  const _SectionHeader({required this.title, this.onSeeAll});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style:
+              theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        if (onSeeAll != null)
+          TextButton(
+            onPressed: onSeeAll,
+            child: const Text(AppStrings.seeAll),
+          ),
+      ],
+    );
+  }
+}
+
+/// Horizontal scroll row of category chips
+class _CategoriesRow extends StatelessWidget {
+  const _CategoriesRow();
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = context.watch<LocaleProvider>().locale.languageCode;
+
+    return Consumer<CategoryProvider>(
+      builder: (_, cats, __) {
+        if (cats.loading) {
+          return const SizedBox(
+            height: 40,
+            child: Center(child: LoadingWidget()),
+          );
+        }
+        if (cats.categories.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              AppStrings.noData,
+              style: const TextStyle(color: AppColors.textSecondary),
+            ),
+          );
+        }
+        return SizedBox(
+          height: 40,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            scrollDirection: Axis.horizontal,
+            itemCount: cats.categories.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (_, i) {
+              final cat = cats.categories[i];
+              return ActionChip(
+                label: Text(cat.localizedName(locale)),
+                avatar: const Icon(Icons.category_outlined, size: 16),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        ProductListScreen(categoryId: cat.id),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Popular products grid with "Load More" pagination
+class _PopularProductsGrid extends StatelessWidget {
+  const _PopularProductsGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ProductProvider>(
+      builder: (_, products, __) {
+        if (products.popularLoading && products.popularProducts.isEmpty) {
+          return const LoadingWidget();
+        }
+        if (products.popularProducts.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              height: 80,
+              child: Center(
+                child: Text(
+                  AppStrings.noData,
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+              ),
+            ),
+          );
+        }
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.7,
+                ),
+                itemCount: products.popularProducts.length,
+                itemBuilder: (_, i) {
+                  final p = products.popularProducts[i];
+                  return ProductCard(
+                    product: p,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ProductDetailScreen(productId: p.id),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (products.popularHasMore) ...[
+              const SizedBox(height: 12),
+              products.popularLoading
+                  ? const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: CircularProgressIndicator(),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () =>
+                              context.read<ProductProvider>().loadPopularProducts(),
+                          child: const Text(AppStrings.loadMore),
+                        ),
+                      ),
+                    ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Latest reviews list
+class _LatestReviewsList extends StatelessWidget {
+  const _LatestReviewsList();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ReviewProvider>(
+      builder: (_, reviews, __) {
+        if (reviews.latestLoading) {
+          return const LoadingWidget();
+        }
+        if (reviews.latestReviews.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SizedBox(
+              height: 80,
+              child: Center(
+                child: Text(
+                  AppStrings.noReviews,
+                  style: TextStyle(color: AppColors.textSecondary),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          );
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: reviews.latestReviews.length,
+          itemBuilder: (_, i) =>
+              ReviewCard(review: reviews.latestReviews[i]),
+        );
+      },
     );
   }
 }

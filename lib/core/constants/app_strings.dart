@@ -40,6 +40,9 @@ class AppStrings {
   static const String featuredProducts = 'Featured Products';
   static const String newArrivals = 'New Arrivals';
   static const String topRated = 'Top Rated';
+  static const String popularProducts = 'Popular Products';
+  static const String latestReviews = 'Latest Reviews';
+  static const String loadMore = 'Load More';
   static const String searchHint = 'Search products, brands...';
 
   // Products

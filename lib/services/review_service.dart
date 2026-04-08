@@ -41,6 +41,23 @@ class ReviewService {
         .toList();
   }
 
+  Future<List<Review>> getLatestReviews({int limit = 5}) async {
+    final response = await _apiClient.get(
+      AppConstants.reviewsEndpoint,
+      queryParams: {
+        'page': '1',
+        'per_page': limit.toString(),
+        'status': 'approved',
+        'sort_by': 'newest',
+      },
+    );
+    final List<dynamic> data =
+        response['data'] ?? response as List<dynamic>;
+    return data
+        .map((r) => Review.fromJson(r as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<Review> createReview(
       int productId, Map<String, dynamic> data) async {
     final response = await _apiClient.post(
