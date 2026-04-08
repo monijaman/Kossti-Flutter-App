@@ -51,15 +51,15 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'] as int,
-      name: json['name'] as String,
-      nameBn: (json['name_bn'] ?? json['name']) as String,
-      description: json['description'] as String?,
-      descriptionBn: json['description_bn'] as String?,
-      price: (json['price'] as num).toDouble(),
-      imageUrl: json['image_url'] as String?,
+      id: (json['id'] as num).toInt(),
+      name: (json['name'] ?? '').toString(),
+      nameBn: (json['name_bn'] ?? json['name'])?.toString() ?? '',
+      description: json['description']?.toString(),
+      descriptionBn: json['description_bn']?.toString(),
+      price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
+      imageUrl: json['image_url']?.toString(),
       images: json['images'] != null
-          ? List<String>.from(json['images'] as List)
+          ? List<String>.from((json['images'] as List).map((e) => e.toString()))
           : [],
       category: json['category'] != null
           ? Category.fromJson(json['category'] as Map<String, dynamic>)
@@ -67,13 +67,14 @@ class Product {
       brand: json['brand'] != null
           ? Brand.fromJson(json['brand'] as Map<String, dynamic>)
           : null,
-      averageRating: (json['average_rating'] ?? 0).toDouble(),
-      reviewCount: (json['review_count'] ?? 0) as int,
-      slug: (json['slug'] ?? json['id'].toString()) as String,
-      isFeatured: (json['is_featured'] ?? false) as bool,
-      isActive: (json['is_active'] ?? true) as bool,
+      averageRating:
+          double.tryParse(json['average_rating']?.toString() ?? '0') ?? 0.0,
+      reviewCount: (json['review_count'] as num?)?.toInt() ?? 0,
+      slug: (json['slug'] ?? json['id'].toString()).toString(),
+      isFeatured: _parseBool(json['is_featured']) ?? false,
+      isActive: _parseBool(json['is_active']) ?? true,
       createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'].toString())
           : null,
       reviews: json['reviews'] != null
           ? (json['reviews'] as List)
@@ -81,6 +82,14 @@ class Product {
               .toList()
           : [],
     );
+  }
+
+  static bool? _parseBool(dynamic value) {
+    if (value == null) return null;
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) return value == 'true' || value == '1';
+    return null;
   }
 
   Map<String, dynamic> toJson() {

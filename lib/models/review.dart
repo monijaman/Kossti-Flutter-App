@@ -8,7 +8,7 @@ class Review {
   final String body;
   final double rating;
   final String status;
-  final DateTime createdAt;
+  final DateTime? createdAt;
   final int helpfulCount;
 
   Review({
@@ -19,7 +19,7 @@ class Review {
     required this.body,
     required this.rating,
     this.status = 'pending',
-    required this.createdAt,
+    this.createdAt,
     this.helpfulCount = 0,
   });
 
@@ -28,17 +28,19 @@ class Review {
 
   factory Review.fromJson(Map<String, dynamic> json) {
     return Review(
-      id: json['id'] as int,
-      productId: json['product_id'] as int,
+      id: (json['id'] as num).toInt(),
+      productId: (json['product_id'] as num?)?.toInt() ?? 0,
       author: json['author'] != null
           ? User.fromJson(json['author'] as Map<String, dynamic>)
           : null,
-      title: (json['title'] ?? '') as String,
-      body: (json['body'] ?? json['content'] ?? '') as String,
-      rating: (json['rating'] as num).toDouble(),
-      status: (json['status'] ?? 'pending') as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      helpfulCount: (json['helpful_count'] ?? 0) as int,
+      title: (json['title'] ?? '').toString(),
+      body: (json['body'] ?? json['content'] ?? '').toString(),
+      rating: double.tryParse(json['rating']?.toString() ?? '0') ?? 0.0,
+      status: (json['status'] ?? 'pending').toString(),
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'].toString())
+          : null,
+      helpfulCount: (json['helpful_count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -50,7 +52,7 @@ class Review {
       'body': body,
       'rating': rating,
       'status': status,
-      'created_at': createdAt.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
       'helpful_count': helpfulCount,
     };
   }

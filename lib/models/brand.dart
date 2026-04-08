@@ -23,15 +23,15 @@ class Brand {
 
   factory Brand.fromJson(Map<String, dynamic> json) {
     return Brand(
-      id: json['id'] as int,
-      name: json['name'] as String,
-      nameBn: (json['name_bn'] ?? json['name']) as String,
-      description: json['description'] as String?,
-      descriptionBn: json['description_bn'] as String?,
-      logoUrl: json['logo_url'] as String?,
-      websiteUrl: json['website_url'] as String?,
-      slug: (json['slug'] ?? json['id'].toString()) as String,
-      productCount: (json['product_count'] ?? 0) as int,
+      id: (json['id'] as num).toInt(),
+      name: (json['name'] ?? '').toString(),
+      nameBn: (json['name_bn'] ?? json['name'])?.toString() ?? '',
+      description: json['description']?.toString(),
+      descriptionBn: json['description_bn']?.toString(),
+      logoUrl: json['logo_url']?.toString(),
+      websiteUrl: json['website_url']?.toString(),
+      slug: (json['slug'] ?? json['id'].toString()).toString(),
+      productCount: (json['product_count'] as num?)?.toInt() ?? 0,
     );
   }
 

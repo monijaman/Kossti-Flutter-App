@@ -57,7 +57,9 @@ class ReviewCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        _formatDate(review.createdAt),
+                        review.createdAt != null
+                            ? _formatDate(review.createdAt!)
+                            : '',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: AppColors.textSecondary,
                         ),

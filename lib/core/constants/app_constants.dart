@@ -2,7 +2,7 @@ class AppConstants {
   // App info
   static const String appName = 'Kossti';
   static const String appVersion = '1.0.0';
-  static const String baseUrl = 'https://kossti.com/api';
+  static const String baseUrl = 'https://gocritserver-production.up.railway.app/api';
 
   // API endpoints
   static const String productsEndpoint = '/products';
