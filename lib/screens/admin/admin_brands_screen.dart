@@ -78,8 +78,8 @@ class _AdminBrandsScreenState extends State<AdminBrandsScreen> {
 
   void _showBrandForm(BuildContext context, {dynamic brand}) {
     final nameController = TextEditingController(text: brand?.name ?? '');
-    final nameArController =
-        TextEditingController(text: brand?.nameAr ?? '');
+    final nameBnController =
+        TextEditingController(text: brand?.nameBn ?? '');
     final websiteController =
         TextEditingController(text: brand?.websiteUrl ?? '');
 
@@ -115,10 +115,9 @@ class _AdminBrandsScreenState extends State<AdminBrandsScreen> {
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: nameArController,
-              textDirection: TextDirection.rtl,
+              controller: nameBnController,
               decoration:
-                  const InputDecoration(labelText: AppStrings.brandNameAr),
+                  const InputDecoration(labelText: AppStrings.brandNameBn),
             ),
             const SizedBox(height: 12),
             TextField(

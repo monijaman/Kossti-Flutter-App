@@ -22,7 +22,7 @@ class AppConstants {
 
   // Supported locales
   static const String localeEnglish = 'en';
-  static const String localeArabic = 'ar';
+  static const String localeBangla = 'bn';
 
   // Pagination
   static const int pageSize = 20;

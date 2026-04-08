@@ -27,10 +27,10 @@ class SettingsScreen extends StatelessWidget {
             onChanged: (v) => localeProvider.setLocale(v!),
           ),
           RadioListTile<String>(
-            value: 'ar',
+            value: 'bn',
             groupValue: localeProvider.locale.languageCode,
-            title: const Text(AppStrings.arabic),
-            secondary: const Text('🇸🇦', style: TextStyle(fontSize: 24)),
+            title: const Text(AppStrings.bangla),
+            secondary: const Text('🇧🇩', style: TextStyle(fontSize: 24)),
             onChanged: (v) => localeProvider.setLocale(v!),
           ),
           const Divider(),

@@ -42,21 +42,14 @@ class KosstApp extends StatelessWidget {
             locale: localeProvider.locale,
             supportedLocales: const [
               Locale('en'),
-              Locale('ar'),
+              Locale('bn'),
             ],
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            builder: (context, child) {
-              return Directionality(
-                textDirection: localeProvider.isArabic
-                    ? TextDirection.rtl
-                    : TextDirection.ltr,
-                child: child!,
-              );
-            },
+            builder: (context, child) => child!,
             home: const SplashScreen(),
             routes: {
               '/home': (context) => const HomeScreen(),

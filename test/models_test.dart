@@ -11,7 +11,7 @@ void main() {
       final json = {
         'id': 1,
         'name': 'Test Product',
-        'name_ar': 'منتج اختبار',
+        'name_bn': 'পরীক্ষার পণ্য',
         'price': 99.99,
         'slug': 'test-product',
         'is_featured': true,
@@ -22,20 +22,20 @@ void main() {
       final product = Product.fromJson(json);
       expect(product.id, 1);
       expect(product.name, 'Test Product');
-      expect(product.nameAr, 'منتج اختبار');
+      expect(product.nameBn, 'পরীক্ষার পণ্য');
       expect(product.price, 99.99);
       expect(product.averageRating, 4.5);
       expect(product.reviewCount, 10);
       expect(product.isFeatured, true);
       expect(product.localizedName('en'), 'Test Product');
-      expect(product.localizedName('ar'), 'منتج اختبار');
+      expect(product.localizedName('bn'), 'পরীক্ষার পণ্য');
     });
 
     test('toJson serializes product correctly', () {
       final product = Product(
         id: 1,
         name: 'Test',
-        nameAr: 'اختبار',
+        nameBn: 'পরীক্ষা',
         price: 50.0,
         slug: 'test',
       );
@@ -51,17 +51,17 @@ void main() {
       final json = {
         'id': 1,
         'name': 'Electronics',
-        'name_ar': 'إلكترونيات',
+        'name_bn': 'ইলেকট্রনিক্স',
         'slug': 'electronics',
         'product_count': 25,
       };
       final cat = Category.fromJson(json);
       expect(cat.id, 1);
       expect(cat.name, 'Electronics');
-      expect(cat.nameAr, 'إلكترونيات');
+      expect(cat.nameBn, 'ইলেকট্রনিক্স');
       expect(cat.productCount, 25);
       expect(cat.localizedName('en'), 'Electronics');
-      expect(cat.localizedName('ar'), 'إلكترونيات');
+      expect(cat.localizedName('bn'), 'ইলেকট্রনিক্স');
     });
   });
 
@@ -70,14 +70,14 @@ void main() {
       final json = {
         'id': 1,
         'name': 'Samsung',
-        'name_ar': 'سامسونج',
+        'name_bn': 'স্যামসাং',
         'slug': 'samsung',
         'product_count': 50,
       };
       final brand = Brand.fromJson(json);
       expect(brand.id, 1);
       expect(brand.name, 'Samsung');
-      expect(brand.localizedName('ar'), 'سامسونج');
+      expect(brand.localizedName('bn'), 'স্যামসাং');
     });
   });
 

@@ -1,9 +1,9 @@
 class Category {
   final int id;
   final String name;
-  final String nameAr;
+  final String nameBn;
   final String? description;
-  final String? descriptionAr;
+  final String? descriptionBn;
   final String? imageUrl;
   final String slug;
   final int productCount;
@@ -11,9 +11,9 @@ class Category {
   Category({
     required this.id,
     required this.name,
-    required this.nameAr,
+    required this.nameBn,
     this.description,
-    this.descriptionAr,
+    this.descriptionBn,
     this.imageUrl,
     required this.slug,
     this.productCount = 0,
@@ -23,9 +23,9 @@ class Category {
     return Category(
       id: json['id'] as int,
       name: json['name'] as String,
-      nameAr: (json['name_ar'] ?? json['name']) as String,
+      nameBn: (json['name_bn'] ?? json['name']) as String,
       description: json['description'] as String?,
-      descriptionAr: json['description_ar'] as String?,
+      descriptionBn: json['description_bn'] as String?,
       imageUrl: json['image_url'] as String?,
       slug: (json['slug'] ?? json['id'].toString()) as String,
       productCount: (json['product_count'] ?? 0) as int,
@@ -36,9 +36,9 @@ class Category {
     return {
       'id': id,
       'name': name,
-      'name_ar': nameAr,
+      'name_bn': nameBn,
       'description': description,
-      'description_ar': descriptionAr,
+      'description_bn': descriptionBn,
       'image_url': imageUrl,
       'slug': slug,
       'product_count': productCount,
@@ -46,8 +46,8 @@ class Category {
   }
 
   String localizedName(String locale) =>
-      locale == 'ar' ? nameAr : name;
+      locale == 'bn' ? nameBn : name;
 
   String? localizedDescription(String locale) =>
-      locale == 'ar' ? descriptionAr : description;
+      locale == 'bn' ? descriptionBn : description;
 }

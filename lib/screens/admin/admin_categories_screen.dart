@@ -80,8 +80,8 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
   void _showCategoryForm(BuildContext context, {dynamic category}) {
     final nameController =
         TextEditingController(text: category?.name ?? '');
-    final nameArController =
-        TextEditingController(text: category?.nameAr ?? '');
+    final nameBnController =
+        TextEditingController(text: category?.nameBn ?? '');
 
     showModalBottomSheet(
       context: context,
@@ -117,10 +117,9 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: nameArController,
-              textDirection: TextDirection.rtl,
+              controller: nameBnController,
               decoration:
-                  const InputDecoration(labelText: AppStrings.categoryNameAr),
+                  const InputDecoration(labelText: AppStrings.categoryNameBn),
             ),
             const SizedBox(height: 20),
             ElevatedButton(

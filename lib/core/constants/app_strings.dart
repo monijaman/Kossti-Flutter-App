@@ -81,7 +81,7 @@ class AppStrings {
   static const String theme = 'Theme';
   static const String darkMode = 'Dark Mode';
   static const String english = 'English';
-  static const String arabic = 'Arabic';
+  static const String bangla = 'বাংলা';
   static const String notifications = 'Notifications';
   static const String about = 'About';
   static const String privacyPolicy = 'Privacy Policy';
@@ -127,9 +127,9 @@ class AppStrings {
   static const String productName = 'Product Name';
   static const String price = 'Price';
   static const String categoryNameEn = 'Category Name (English)';
-  static const String categoryNameAr = 'Category Name (Arabic)';
+  static const String categoryNameBn = 'Category Name (Bangla)';
   static const String brandNameEn = 'Brand Name (English)';
-  static const String brandNameAr = 'Brand Name (Arabic)';
+  static const String brandNameBn = 'Brand Name (Bangla)';
   static const String websiteUrl = 'Website URL';
 
   // Sort options
