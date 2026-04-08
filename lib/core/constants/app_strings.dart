@@ -116,6 +116,21 @@ class AppStrings {
   static const String editBrand = 'Edit Brand';
   static const String applyFilters = 'Apply Filters';
   static const String clearFilters = 'Clear Filters';
+  static const String deleteProduct = 'Delete Product';
+  static const String deleteCategory = 'Delete Category';
+  static const String deleteBrand = 'Delete Brand';
+  static const String deleteConfirm = 'Are you sure you want to delete';
+  static const String adminRole = 'Admin';
+  static const String account = 'Account';
+
+  // Form labels
+  static const String productName = 'Product Name';
+  static const String price = 'Price';
+  static const String categoryNameEn = 'Category Name (English)';
+  static const String categoryNameAr = 'Category Name (Arabic)';
+  static const String brandNameEn = 'Brand Name (English)';
+  static const String brandNameAr = 'Brand Name (Arabic)';
+  static const String websiteUrl = 'Website URL';
 
   // Sort options
   static const String sortNewest = 'Newest';
@@ -136,6 +151,16 @@ class AppStrings {
   // Validation
   static const String titleRequired = 'Title is required';
   static const String reviewRequired = 'Review is required';
+  static const String nameRequired = 'Name is required';
+  static const String emailRequired = 'Email is required';
+  static const String emailInvalid = 'Enter a valid email';
+  static const String passwordRequired = 'Password is required';
+  static const String passwordMinLength = 'Password must be at least 6 characters';
+  static const String passwordsDoNotMatch = 'Passwords do not match';
+  static const String passwordAtLeast6 = 'At least 6 characters';
+
+  // No description
+  static const String noDescription = 'No description available';
 
   // Product count suffix
   static const String productsCount = 'products';

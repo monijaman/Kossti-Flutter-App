@@ -174,14 +174,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       const Divider(),
                       const SizedBox(height: 8),
                       Text(
-                        'Description',
+                        AppStrings.description,
                         style: theme.textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         product.localizedDescription(locale) ??
-                            'No description available',
+                            AppStrings.noDescription,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
                           height: 1.6,

@@ -98,8 +98,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         prefixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: (v) {
-                        if (v == null || v.isEmpty) return 'Email is required';
-                        if (!v.contains('@')) return 'Enter a valid email';
+                        if (v == null || v.isEmpty) return AppStrings.emailRequired;
+                        if (!v.contains('@')) return AppStrings.emailInvalid;
                         return null;
                       },
                     ),
@@ -119,8 +119,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       validator: (v) {
-                        if (v == null || v.isEmpty) return 'Password is required';
-                        if (v.length < 6) return 'Password must be at least 6 characters';
+                        if (v == null || v.isEmpty) return AppStrings.passwordRequired;
+                        if (v.length < 6) return AppStrings.passwordMinLength;
                         return null;
                       },
                     ),

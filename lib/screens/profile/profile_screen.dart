@@ -73,7 +73,7 @@ class ProfileScreen extends StatelessWidget {
                       if (user.isAdmin) ...[
                         const SizedBox(height: 8),
                         Chip(
-                          label: const Text('Admin',
+                          label: const Text(AppStrings.adminRole,
                               style: TextStyle(
                                   color: AppColors.primary, fontSize: 12)),
                           backgroundColor: Colors.white,

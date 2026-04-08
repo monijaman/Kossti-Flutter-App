@@ -47,7 +47,7 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           const Divider(),
-          _SectionHeader(title: 'Account'),
+          _SectionHeader(title: AppStrings.account),
           Consumer<AuthProvider>(
             builder: (_, auth, __) {
               if (!auth.isAuthenticated) return const SizedBox.shrink();

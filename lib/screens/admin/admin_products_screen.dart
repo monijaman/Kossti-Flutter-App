@@ -122,20 +122,20 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
             const SizedBox(height: 16),
             TextField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: 'Product Name'),
+              decoration: const InputDecoration(labelText: AppStrings.productName),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: priceController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Price'),
+              decoration: const InputDecoration(labelText: AppStrings.price),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: descController,
               maxLines: 3,
               decoration:
-                  const InputDecoration(labelText: 'Description'),
+                  const InputDecoration(labelText: AppStrings.description),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -153,8 +153,8 @@ class _AdminProductsScreenState extends State<AdminProductsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Product'),
-        content: Text('Are you sure you want to delete "$name"?'),
+        title: const Text(AppStrings.deleteProduct),
+        content: Text('${AppStrings.deleteConfirm} "$name"?'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),

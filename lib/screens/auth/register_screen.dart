@@ -75,7 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     prefixIcon: Icon(Icons.person_outline),
                   ),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Name is required';
+                    if (v == null || v.isEmpty) return AppStrings.nameRequired;
                     return null;
                   },
                 ),
@@ -88,8 +88,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Email is required';
-                    if (!v.contains('@')) return 'Enter a valid email';
+                    if (v == null || v.isEmpty) return AppStrings.emailRequired;
+                    if (!v.contains('@')) return AppStrings.emailInvalid;
                     return null;
                   },
                 ),
@@ -109,8 +109,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Password is required';
-                    if (v.length < 6) return 'At least 6 characters';
+                    if (v == null || v.isEmpty) return AppStrings.passwordRequired;
+                    if (v.length < 6) return AppStrings.passwordAtLeast6;
                     return null;
                   },
                 ),
@@ -124,7 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (v) {
                     if (v != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return AppStrings.passwordsDoNotMatch;
                     }
                     return null;
                   },

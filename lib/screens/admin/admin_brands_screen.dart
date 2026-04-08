@@ -48,7 +48,7 @@ class _AdminBrandsScreenState extends State<AdminBrandsScreen> {
                 child: ListTile(
                   title: Text(b.localizedName(locale)),
                   subtitle: Text(
-                    '${b.productCount} products',
+                    '${b.productCount} ${AppStrings.productsCount}',
                     style: const TextStyle(color: AppColors.textSecondary),
                   ),
                   trailing: Row(
@@ -111,20 +111,20 @@ class _AdminBrandsScreenState extends State<AdminBrandsScreen> {
             TextField(
               controller: nameController,
               decoration:
-                  const InputDecoration(labelText: 'Brand Name (English)'),
+                  const InputDecoration(labelText: AppStrings.brandNameEn),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: nameArController,
               textDirection: TextDirection.rtl,
               decoration:
-                  const InputDecoration(labelText: 'Brand Name (Arabic)'),
+                  const InputDecoration(labelText: AppStrings.brandNameAr),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: websiteController,
               keyboardType: TextInputType.url,
-              decoration: const InputDecoration(labelText: 'Website URL'),
+              decoration: const InputDecoration(labelText: AppStrings.websiteUrl),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -143,8 +143,8 @@ class _AdminBrandsScreenState extends State<AdminBrandsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Brand'),
-        content: Text('Are you sure you want to delete "$name"?'),
+        title: const Text(AppStrings.deleteBrand),
+        content: Text('${AppStrings.deleteConfirm} "$name"?'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),

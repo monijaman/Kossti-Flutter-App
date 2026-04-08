@@ -48,7 +48,7 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                 child: ListTile(
                   title: Text(c.localizedName(locale)),
                   subtitle: Text(
-                    '${c.productCount} products',
+                    '${c.productCount} ${AppStrings.productsCount}',
                     style: const TextStyle(color: AppColors.textSecondary),
                   ),
                   trailing: Row(
@@ -113,14 +113,14 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
             TextField(
               controller: nameController,
               decoration:
-                  const InputDecoration(labelText: 'Category Name (English)'),
+                  const InputDecoration(labelText: AppStrings.categoryNameEn),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: nameArController,
               textDirection: TextDirection.rtl,
               decoration:
-                  const InputDecoration(labelText: 'Category Name (Arabic)'),
+                  const InputDecoration(labelText: AppStrings.categoryNameAr),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -140,8 +140,8 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Category'),
-        content: Text('Are you sure you want to delete "$name"?'),
+        title: const Text(AppStrings.deleteCategory),
+        content: Text('${AppStrings.deleteConfirm} "$name"?'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),

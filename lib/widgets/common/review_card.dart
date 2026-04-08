@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../../models/review.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_strings.dart';
 
 class ReviewCard extends StatelessWidget {
   final Review review;
@@ -98,12 +99,12 @@ class ReviewCard extends StatelessWidget {
                   if (review.isPending) ...[
                     TextButton(
                       onPressed: onApprove,
-                      child: const Text('Approve',
+                      child: const Text(AppStrings.approveReview,
                           style: TextStyle(color: AppColors.success)),
                     ),
                     TextButton(
                       onPressed: onReject,
-                      child: const Text('Reject',
+                      child: const Text(AppStrings.rejectReview,
                           style: TextStyle(color: AppColors.warning)),
                     ),
                   ],
@@ -127,15 +128,15 @@ class ReviewCard extends StatelessWidget {
     switch (review.status) {
       case 'approved':
         color = AppColors.success;
-        label = 'Approved';
+        label = AppStrings.tabApproved;
         break;
       case 'rejected':
         color = AppColors.error;
-        label = 'Rejected';
+        label = AppStrings.rejectReview;
         break;
       default:
         color = AppColors.warning;
-        label = 'Pending';
+        label = AppStrings.tabPending;
     }
     return Chip(
       label: Text(label,
