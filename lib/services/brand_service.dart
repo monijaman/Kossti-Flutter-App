@@ -18,10 +18,6 @@ class BrandService {
         .map((b) => Brand.fromJson(b as Map<String, dynamic>))
         .toList();
   }
-    return ApiClient.extractList(response)
-        .map((b) => Brand.fromJson(b as Map<String, dynamic>))
-        .toList();
-  }
 
   Future<Brand> getBrand(int id) async {
     final response = await _apiClient.get(
